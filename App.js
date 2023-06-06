@@ -1,14 +1,23 @@
-import React from 'react';
+import {React,useState} from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import HomeScreen from './HomeScreen';
 import LoginPage from './LoginPage';
-import RegisterPage from './Register';
+import RegisterPage from './RegisterPage';
+import { ThemeContext, darkTheme, lightTheme } from './Theme';
 
 const Stack = createStackNavigator();
 
+
 export default function App() {
+
+  const [theme, setTheme] = useState(darkTheme);
+  const toggleTheme = () => {
+    setTheme(theme === darkTheme ? lightTheme : darkTheme);
+  };
+
   return (
+    <ThemeContext.Provider value={{ theme, toggleTheme }}>
     <NavigationContainer>
       <Stack.Navigator>
         <Stack.Screen
@@ -28,5 +37,6 @@ export default function App() {
         />
       </Stack.Navigator>
     </NavigationContainer>
+    </ThemeContext.Provider>
   );
 }
