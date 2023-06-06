@@ -1,6 +1,6 @@
 import React, { useState, useContext, useEffect } from 'react';
-import { View, Text, TextInput, Button, StyleSheet, Switch, TouchableOpacity, Image, Platform } from 'react-native';
-import { darkTheme, lightTheme, toggleTheme } from './Theme';
+import { View, Text, TextInput, Button, StyleSheet, Switch, TouchableOpacity, Image,} from 'react-native';
+import { lightTheme, toggleTheme } from './Theme';
 import loadFonts from './font';
 import { LinearGradient } from 'expo-linear-gradient';
 
@@ -17,8 +17,7 @@ export default function LoginPage({ navigation }) {
             await loadFonts();
             setFontLoaded(true);
         }
-
-        loadAppFonts();
+          loadAppFonts();
     }, []);
 
     if (!isFontLoaded) {
@@ -49,15 +48,15 @@ export default function LoginPage({ navigation }) {
     };
 
     let path = '';
-    if (theme === lightTheme) {
+    if (theme === lightTheme) 
         path = require('./assets/Images/DigiLight.png');
-    } else {
+     else 
         path = require('./assets/Images/DigiPgLogo.png');
-    }
+    
 
 
     return (
-        <LinearGradient style={styles.container} colors={[theme.primaryColor, theme.headlines]}>
+        <LinearGradient style={styles.container} colors={[theme.primaryColor, theme.secondaryColor]}>
             <View></View>
             <Switch
                 style={styles.switch}
@@ -79,17 +78,20 @@ export default function LoginPage({ navigation }) {
             </View>
 
             <View style={styles.formContent}>
-                <Text style={[styles.inputLabel, { fontFamily: 'redLight', letterSpacing: 2, backgroundColor: theme.primaryColor }]}>ENTER USERNAME</Text>
+
+                <Text style={[styles.inputLabel, { fontFamily: 'redMed', letterSpacing: 2, backgroundColor: theme.primaryColor,color: theme.textColor,textShadowColor:theme.textShadowColor }]}>ENTER USERNAME</Text>
+
                 <TextInput
-                    style={[styles.input, { borderColor: theme.secondaryColor, color: theme.textColor }]}
+                    style={[styles.input, { borderColor: theme.headlines, color: theme.textColor }]}
                     placeholder="Username"
                     placeholderTextColor={theme.placeholder}
                     value={username}
                     onChangeText={setUsername}
                 />
-                <Text style={[styles.inputLabel, { fontFamily: 'redLight', letterSpacing: 2, backgroundColor: theme.primaryColor }]}>ENTER PASSWORD</Text>
+                <Text style={[styles.inputLabel, { fontFamily: 'redMed', letterSpacing: 2, backgroundColor: theme.primaryColor,color: theme.textColor, textShadowColor:theme.textShadowColor }]}>ENTER PASSWORD</Text>
+
                 <TextInput
-                    style={[styles.input, { borderColor: theme.secondaryColor, color: theme.textColor }]}
+                    style={[styles.input, { borderColor: theme.headlines, color: theme.textColor }]}
                     placeholder="Password"
                     placeholderTextColor={theme.placeholder}
                     secureTextEntry
@@ -131,19 +133,16 @@ const styles = StyleSheet.create({
         width: 200,
         height: 200,
         borderRadius: 100, // half of the width and height
-        elevation: 40
     },
 
     inputLabel: {
         textAlign: "left",
-        color: 'white',
         width: '80%',
         padding: 7,
         fontSize: 14,
         borderTopLeftRadius: 0,
         borderTopRightRadius: 20,
         fontFamily: 'redLight',
-        textShadowColor: 'rgba(255, 255, 255, 0.9)',
         textShadowOffset: { width: 0.5, height: 0.5 },
         textShadowRadius: 5,
     },
