@@ -1,8 +1,11 @@
 import React, { useState, useContext, useEffect } from 'react';
-import { View, Text, TextInput, Button, StyleSheet, Switch, TouchableOpacity, Image,} from 'react-native';
+import { View, Text, TextInput, Button, ScrollView, StyleSheet, Switch, TouchableOpacity, Image, KeyboardAvoidingView} from 'react-native';
 import { lightTheme, toggleTheme } from './Theme';
 import loadFonts from './font';
+import CustomHeader from './CustomHeader';
 import { LinearGradient } from 'expo-linear-gradient';
+import { useNavigation } from '@react-navigation/native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function LoginPage({ navigation }) {
     const [username, setUsername] = useState('');
@@ -11,6 +14,7 @@ export default function LoginPage({ navigation }) {
     const [isEnabled, setIsEnabled] = useState(false);
     const [theme, setTheme] = useState(lightTheme);
     const [isFontLoaded, setFontLoaded] = useState(false);
+    const [invalidCredentials, setInvalidCredentials] = useState(false);
 
     useEffect(() => {
         async function loadAppFonts() {
@@ -30,18 +34,33 @@ export default function LoginPage({ navigation }) {
         setTheme(newTheme);
     };
 
-    const handleLogin = () => {
-        // Perform login logic here
-        console.log('Username:', username);
-        console.log('Password:', password);
-
-        // Check login credentials and navigate to home screen if successful
-        if (usernameTrim === 'admin' && password === 'password') {
-            navigation.navigate('Home');
-        } else {
-            console.log('Failed to login');
+    const handleLogin = async () => {
+        try {
+          setInvalidCredentials(false);
+          const existingRegistrations = await AsyncStorage.getItem('registrations');
+          const registrations = existingRegistrations ? JSON.parse(existingRegistrations) : [];
+    
+          const matchedRegistration = registrations.find(registration => registration.username === username && registration.password === password);
+    
+          if (matchedRegistration) {
+            if (matchedRegistration.firstLogin) {
+              navigation.navigate('PG Details', {
+                username: matchedRegistration.username
+              });
+            } else {
+              navigation.navigate('Dashboard', {
+                username: matchedRegistration.username
+              });
+            }
+          } else {
+            setInvalidCredentials(true);
+          }
+        } catch (error) {
+          Alert.alert('Error', 'An error occurred while logging in');
         }
-    };
+      };
+    
+
 
     const handleRegister = () => {
         navigation.navigate('RegisterPage');
@@ -49,15 +68,14 @@ export default function LoginPage({ navigation }) {
 
     let path = '';
     if (theme === lightTheme) 
-        path = require('./assets/Images/DigiLight.png');
+        path = require('../assets/Images/DigiPgLightLogo.png');
      else 
-        path = require('./assets/Images/DigiPgLogo.png');
+        path = require('../assets/Images/DigiPgDarkLogo.png');
     
 
 
     return (
-        <LinearGradient style={styles.container} colors={[theme.primaryColor, theme.secondaryColor]}>
-            <View></View>
+        <LinearGradient style={styles.container} colors={[theme.primaryColor, theme.secondaryColor]}>         
             <Switch
                 style={styles.switch}
                 trackColor={{ false: '#010101', true: '#e39ff6' }}
@@ -76,29 +94,34 @@ export default function LoginPage({ navigation }) {
                 />
 
             </View>
+    
 
-            <View style={styles.formContent}>
 
-                <Text style={[styles.inputLabel, { fontFamily: 'redMed', letterSpacing: 2, backgroundColor: theme.primaryColor,color: theme.textColor,textShadowColor:theme.textShadowColor }]}>ENTER USERNAME</Text>
+    <View style={styles.formContent}>
+
+        
+        <Text style={[styles.inputLabel, { fontFamily: 'redMed', letterSpacing: 2, backgroundColor: theme.primaryColor,color: theme.textColor,textShadowColor:theme.textShadowColor }]}>ENTER USERNAME</Text>
 
                 <TextInput
                     style={[styles.input, { borderColor: theme.headlines, color: theme.textColor }]}
-                    placeholder="Username"
+                    placeholder="PG - ID"
                     placeholderTextColor={theme.placeholder}
                     value={username}
-                    onChangeText={setUsername}
+                    onChangeText={text => setUsername(text)}
                 />
-                <Text style={[styles.inputLabel, { fontFamily: 'redMed', letterSpacing: 2, backgroundColor: theme.primaryColor,color: theme.textColor, textShadowColor:theme.textShadowColor }]}>ENTER PASSWORD</Text>
+                <Text style={[styles.inputLabel,  invalidCredentials && styles.inputError, { fontFamily: 'redMed', letterSpacing: 2, backgroundColor: theme.primaryColor,color: theme.textColor, textShadowColor:theme.textShadowColor }]}>ENTER PASSWORD</Text>
 
                 <TextInput
-                    style={[styles.input, { borderColor: theme.headlines, color: theme.textColor }]}
+                    style={[styles.input,invalidCredentials && styles.inputError,{ borderColor: theme.headlines, color: theme.textColor }]}
                     placeholder="Password"
                     placeholderTextColor={theme.placeholder}
                     secureTextEntry
                     value={password}
-                    onChangeText={setPassword}
+                    onChangeText={text => setPassword(text)}
                 />
-
+      {invalidCredentials && (
+        <Text style={styles.errorText}>Invalid credentials. Please try again.</Text>
+      )}
                 <TouchableOpacity style={[styles.buttonLogin, { marginBottom: 10 }]} onPress={handleLogin}>
                     <Text style={[styles.buttonText, { color: theme.textColor, fontFamily: 'redMed' }]}>LOGIN</Text>
                 </TouchableOpacity>
@@ -106,10 +129,10 @@ export default function LoginPage({ navigation }) {
                     <Text style={[styles.buttonText, { color: theme.textColor, fontFamily: 'redMed' }]}>REGISTER</Text>
                 </TouchableOpacity>
 
-
                 <View>
                 </View>
             </View>
+            
         </LinearGradient>
     );
 }
@@ -118,6 +141,7 @@ export default function LoginPage({ navigation }) {
 const styles = StyleSheet.create({
     switchContainer: {
         position: 'absolute',
+        backgroundColor:'green',
         right: 10,
         top: 30
     },
@@ -129,9 +153,9 @@ const styles = StyleSheet.create({
     },
 
     image: {
-        marginTop: 100,
-        width: 200,
-        height: 200,
+        margin: 50,
+        width: 150,
+        height: 150,
         borderRadius: 100, // half of the width and height
     },
 
@@ -148,13 +172,13 @@ const styles = StyleSheet.create({
     },
 
     formContent: {
-        flex: 2,
+        flex: 3,
         width: '100%',
-        justifyContent: 'center',
+        justifyContent:'flex-start',
         alignItems: 'center'
     },
     banner: {
-        flex: 1,
+        flex: 2,
         width: '100%',
         justifyContent: 'center',
         alignItems: 'center',

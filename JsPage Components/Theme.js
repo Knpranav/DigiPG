@@ -18,7 +18,8 @@ export const darkTheme = {
 
 export const lightTheme = {
 
-  textColor: '#504A4B',
+  // textColor: '#504A4B',
+  textColor:'#290040',
   primaryColor: '#B6B6B4',
   secondaryColor:'#F5F5F5',
   boxColor:'rgb(227, 159, 246)',
